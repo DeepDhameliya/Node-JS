@@ -1,0 +1,275 @@
+<!-- views/dashboard.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Add this script tag to include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .dashboard-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fadeIn 1s ease-out;
+            /* Fade in effect for the dashboard container */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            animation: fadeIn 1s ease-out;
+            /* Fade in effect for the table */
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .view-result-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            /* Scale effect added */
+        }
+
+        .view-result-button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+            /* Scale up on hover */
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Fade in effect for table rows */
+
+        tbody tr {
+            animation: fadeInRow 0.6s ease-out;
+        }
+
+        .go-back-button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            margin-bottom: 20px;
+            /* Add margin to separate from the table */
+            /* Gradient effect added */
+            background-image: linear-gradient(45deg, #3498db, #2980b9);
+            /* Box shadow added for depth */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Scale effect added */
+        }
+
+        .go-back-button:hover {
+            background-color: #2980b9;
+            color: #fff;
+            transform: scale(1.08);
+            /* Scale up on hover */
+            /* Box shadow increased for a stronger hover effect */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .go-back-button:active {
+            /* Smooth transition to active state */
+            transform: scale(0.95);
+        }
+
+        /* Add styling for charts */
+
+        .charts-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .doughnut-chart-container,
+        .pie-chart-container {
+            width: 45%;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <h1>Admin Dashboard</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Mobile Number</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% userData.forEach(user=> { %>
+                    <tr>
+                        <td>
+                            <%= user.first_name %><%=" "%><%= user.last_name %>
+                        </td>
+                        <td>
+                            <%= user.email %>
+                        </td>
+                        <td>
+                            <%= user.mobile_number %>
+                        </td>
+                        <td><a href="/result-page?userid=<%=user.user_id%>"><button class="view-result-button">View
+                                    Result</button></a></td>
+                    </tr>
+                    <% }); %>
+            </tbody>
+        </table>
+        <!-- Add placeholders for charts -->
+        <div class="charts-container">
+            <div class="doughnut-chart-container">
+                <canvas id="doughnutChart"></canvas>
+            </div>
+            <div class="pie-chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <p>
+            <a href="/admin_panel">
+                <button class="go-back-button">Go Back</button>
+            </a>
+        </p>
+    </div>
+
+</body>
+<script>
+    // Add this script to initialize and update the charts
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the data for the charts (modify this according to your data structure)
+        var chartData = [{
+            label: 'Correct',
+            value: <%=correct%>,
+            color: '#4CAF50'
+        }, {
+        label: 'Incorrect',
+        value: <%=incorrect%>,
+        color: '#FF5733'
+        }];
+
+    // Calculate the total for percentage calculation
+    var total = chartData.reduce((acc, data) => acc + data.value, 0);
+
+    // Calculate percentages
+    var percentages = chartData.map(data => ((data.value / total) * 100).toFixed(2) + '%');
+
+    // Doughnut Chart
+    var doughnutChart = new Chart(document.getElementById('doughnutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: chartData.map((data, index) => `${data.label} (${percentages[index]})`),
+            datasets: [{
+                data: chartData.map(data => data.value),
+                backgroundColor: chartData.map(data => data.color)
+            }]
+        },
+        options: {
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        return label;
+                    }
+                }
+            }
+        }
+    });
+
+    // Pie Chart
+    var pieChart = new Chart(document.getElementById('pieChart'), {
+        type: 'pie',
+        data: {
+            labels: chartData.map((data, index) => `${data.label} (${percentages[index]})`),
+            datasets: [{
+                data: chartData.map(data => data.value),
+                backgroundColor: chartData.map(data => data.color)
+            }]
+        },
+        options: {
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        return label;
+                    }
+                }
+            }
+        }
+    });
+    });
+</script>
+
+
+
+</html>

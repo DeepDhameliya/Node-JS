@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survey Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        fieldset {
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="radio"],
+        input[type="checkbox"],
+        textarea,
+        input[type="email"] {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+        }
+
+        button:hover {
+            filter: brightness(80%);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-prev,
+        .btn-next,
+        .btn-save,
+        .btn-submit {
+            margin-right: 10px;
+        }
+
+        .btn-submit {
+            background-color: #4caf50;
+        }
+
+        .btn-save {
+            background-color: #0077a3;
+        }
+
+        .btn-prev,
+        .btn-next {
+            background-color: #008cba;
+        }
+
+        .btn-save:hover {
+            background-color: #005580;
+        }
+
+        .like-dislike-container {
+            display: flex;
+            justify-content: space-evenly;
+            /* Adjust this property as needed */
+            align-items: center;
+            /* Align items vertically at the center */
+        }
+
+        label img {
+            cursor: pointer;
+            transition: filter 0.3s ease-in-out;
+        }
+
+        label img:hover {
+            filter: brightness(80%);
+            /* Adjust the brightness value as needed */
+        }
+
+        label img:active {
+            filter: brightness(60%);
+            /* Adjust the brightness value as needed */
+        }
+
+        input[type="radio"]:checked+img {
+            filter: brightness(60%);
+            /* Adjust the brightness value as needed */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Survey Page</h1>
+        <form method="post" action="/survey" onsubmit="return validateForm()" id="myForm">
+            <% if (locals.currentPage==locals.totalPages) { %>
+                <!-- Survey Response Section -->
+                <fieldset>
+                    <legend>Survey Response</legend>
+                    <div>
+                        <!-- Add this hidden input field in your form -->
+                        <input type="hidden" id="userid" name="lastpage" value="<%=userid%>" />
+
+                        <label for="like">Do you like this survey?</label>
+                        <div class="like-dislike-container">
+                            <label for="like">
+                                <input type="radio" id="like" name="surveyResponse" value="like" required
+                                    style="display: none;"><img src="/images/like.png" alt="" height="50px"
+                                    width="50px"></input>
+                            </label>
+
+                            <label for="dislike">
+                                <input type="radio" id="dislike" name="surveyResponse" value="dislike" required
+                                    style="display: none;"><img src="/images/dislike.png" alt="" height="50px"
+                                    width="50px"></input>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="suggestion">Suggestion or Recommendation:</label>
+                        <textarea id="suggestion" name="suggestion" rows="4" cols="50" required></textarea>
+                    </div>
+                    <div>
+                        <label for="email">Would you like to receive feedback? Enter your email:</label>
+                        <input type="email" id="email" name="email" />
+                    </div>
+                </fieldset>
+                <% } else { %>
+                    <!-- Questions Section -->
+                    <!-- Add this hidden input field in your form -->
+                    <input type="hidden" id="userid" name="userid" value="<%=userid%>" />
+
+                    <% questions.forEach((q, index)=> { %>
+                        <fieldset>
+                            <legend>
+                                <%= q.question %>
+                            </legend>
+                            <% q.options.split(',').forEach((opt)=> { %>
+                                <label>
+                                    <% if (q.type==='text' ) { %>
+                                        <input type="<%= q.type %>" name=<%=q.id %> placeholder="<%= opt %>"
+                                            required />
+                                            <% } else if (q.type==='radio' ) { %>
+                                                <input type="<%= q.type %>" name=<%=q.id %> value="<%= opt %>"
+                                                    required />
+                                                    <%= opt %>
+                                                        <% } else if (q.type==='checkbox' ) { %>
+                                                            <input type="<%= q.type %>" name=<%=q.id %> value="<%= opt
+                                                                %>" required/>
+                                                                <%= opt %>
+                                                                    <% } %>
+                                </label><br />
+                                <% }) %>
+                        </fieldset>
+                        <% }) %>
+                            <% } %>
+                                <!-- Navigation Buttons -->
+                                <div class="btn-container">
+                                    <% if (locals.currentPage> 1) { %>
+                                        <button class="btn btn-prev" type="button" onclick="prevPage()">
+                                            Previous Page
+                                        </button>
+                                        <% } %>
+                                            <% if (locals.currentPage < locals.totalPages) { %>
+                                                <button class="btn btn-save" type="button" onclick="saveFormData()">
+                                                    Save
+                                                </button>
+                                                <button class="btn btn-next" type="button" onclick="nextPage()">
+                                                    Next Page
+                                                </button>
+                                                <% } else if (locals.currentPage==locals.totalPages) { %>
+                                                    <button class="btn btn-save" type="button" onclick="saveFormData()">
+                                                        Save
+                                                    </button>
+                                                    <button class="btn btn-submit"
+                                                        onclick="submitForm()">Submit</button>
+                                                    <% } %>
+                                </div>
+        </form>
+    </div>
+</body>
+<script>
+    const currentPage = <%= locals.currentPage %>;
+    const totalPages = <%= locals.totalPages %>;
+    let isFormSaved = false; // Variable to track whether the form has been saved
+
+    function saveFormData() {
+        if (true) {
+            const formData = new FormData(document.getElementById('myForm'));
+
+            const questions = document.querySelectorAll('fieldset');
+            for (let i = 0; i < questions.length; i++) {
+                const inputs = questions[i].querySelectorAll('input[type="text"], input[type="radio"], input[type="checkbox"], textarea, input[type="email"]');
+                const isAnyInputProvided = Array.from(inputs).some(input => {
+                    if (input.type === 'radio' || input.type === 'checkbox') {
+                        return input.checked;
+                    } else {
+                        return input.value.trim() !== '';
+                    }
+                });
+
+                if (!isAnyInputProvided) {
+                    alert('Please provide at least one input for every question before saving.');
+                    return;
+                }
+            }
+
+            const surveyData = {};
+            formData.forEach((value, key) => {
+                if (surveyData[key]) {
+                    if (!Array.isArray(surveyData[key])) {
+                        surveyData[key] = [surveyData[key]];
+                    }
+                    surveyData[key].push(value);
+                } else {
+                    surveyData[key] = value;
+                }
+            });
+
+            const saveButton = document.querySelector('.btn-save');
+            saveButton.style.backgroundColor = '#4caf50';
+
+
+            // Make an AJAX request to the server
+            fetch('/survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(surveyData),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data.message);
+                    // Optionally handle the response, update UI, etc.
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // Handle errors if needed
+                });
+            isFormSaved = true;
+        }
+    }
+
+
+    function nextPage() {
+        if (!isFormSaved) {
+            alert(
+                "Please make sure you have saved your information before proceeding."
+            );
+        } else {
+            location.href = `/survey?page=${currentPage + 1}&userid=<%=userid%>`;
+        }
+    }
+
+    function prevPage() {
+        location.href = `/survey?page=${currentPage - 1}&userid=<%=userid%>`;
+    }
+
+    function submitForm() {
+        if (!isFormSaved) {
+            alert(
+                "Please make sure you have saved your information before proceeding."
+            );
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get all images with the 'like' and 'dislike' classes
+        var likeImage = document.querySelector('.like-image');
+        var dislikeImage = document.querySelector('.dislike-image');
+
+        // Add click event listeners to the images
+        likeImage.addEventListener('click', function () {
+            selectOption('like');
+        });
+
+        dislikeImage.addEventListener('click', function () {
+            selectOption('dislike');
+        });
+
+        function selectOption(option) {
+            // Simulate the radio button click for the selected option
+            document.getElementById(option).checked = true;
+        }
+    });
+</script>
+
+</html>

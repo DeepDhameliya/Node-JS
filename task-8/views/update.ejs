@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Information</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .registration-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            margin-top: 5px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="registration-form">
+        <h2>Update Information</h2>
+        <form action="/updateUser" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="userId" value="<%= user.userid %>">
+
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" value="<%= user.firstname %>">
+
+            <label for="middleName">Middle Name:</label>
+            <input type="text" id="middleName" name="middleName" value="<%= user.middlename %>">
+
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" value="<%= user.lastname %>">
+
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" value="<%= date %>">
+
+            <label for="mobileNumber">Mobile Number:</label>
+            <input type="tel" id="mobileNumber" name="mobileNumber" value="<%= user.mobilenumber %>">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<%= user.email %>">
+            <!-- 
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password"> -->
+
+            <!-- <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword"> -->
+
+            <label for="profileImage">Upload Profile Image:</label>
+            <input type="file" id="profileImage" name="profileImage" value="<%= user.profileimage %>">
+
+            <button type="submit">Update</button>
+        </form>
+        <!-- <script>
+            function validateForm() {
+                var password = document.getElementById("password").value;
+                var confirmPassword = document.getElementById("confirmPassword").value;
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match!");
+                    return false;
+                }
+
+                return true;
+            }
+        </script> -->
+    </div>
+</body>
+
+</html>

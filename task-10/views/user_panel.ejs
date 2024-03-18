@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .user-info-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 100%;
+            box-sizing: border-box;
+            transition: transform 0.3s ease-in-out;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .user-info-container:hover {
+            transform: scale(1.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease-in-out;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #3498db;
+            cursor: pointer;
+        }
+
+        .logout-link {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #e74c3c;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease-in-out;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .logout-link:hover {
+            background-color: #c0392b;
+        }
+
+        /* Additional style for animation */
+
+        .logout-link-container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation: fadeInUp 0.8s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div class="user-info-container animated">
+            <div class="icon-container"><i class="fas fa-user-circle"></i></div>
+        <h2>User Dashboard</h2>
+        <p><strong>Full Name:</strong>
+            <%= user.first_name %> <%=" "%> <%= user.last_name %>
+        </p>
+        <p><strong>Mobile Number:</strong>
+            <%= user.mobile_number %>
+        </p>
+        <p><strong>Email:</strong>
+            <%= user.email %>
+        </p>
+        <button onclick="startQuiz()">Start Quiz</button>
+        <a href="/" class="logout-link logout-link-container">
+            Logout <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+
+    <script>
+        var userid = <%= user.user_id %>
+
+            function startQuiz() {
+                // Add logic to start the quiz
+                alert("Quiz started!");
+                // Redirect or perform other actions as needed
+                location.href = `/quiz?userid=${userid}`;
+            }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,181 @@
+<!-- quiz.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 300px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        form:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input {
+            margin-right: 5px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        p.timer {
+            font-size: 16px;
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Quiz</h1>
+
+    <form action="/quiz" method="post" id="quizForm">
+        <input type="hidden" name="userid" value="<%= userid %>">
+        <% questions.forEach(function(q, index) { %>
+            <div class="question" id="question<%= index %>" style="display: none;">
+                <p><strong>Question <%= index + 1 %>:</strong>
+                    <%= q.question %>
+                </p>
+
+                <% q.options.split(',').forEach(function(option) { %>
+                    <label>
+                        <input type="radio" name="<%=q.question %>" value="<%= option %>">
+                        <%= option %>
+                    </label>
+                    <% }) %>
+
+                        <p class="timer" id="timer<%= index %>">Time remaining: 30 seconds</p>
+            </div>
+            <% }) %>
+
+                <button type="button" onclick="nextQuestion()" id="nextButton">Next</button>
+                <button type="submit" style="display: none;" id="submitButton">Submit</button>
+    </form>
+    <!-- quiz.ejs -->
+
+    <!-- ... (previous code) ... -->
+
+    <script>
+        let currentQuestion = 0;
+        let timer;
+        var length = <%= questions.length %>;
+        var formSubmitted = false;
+
+        function showQuestion(questionIndex) {
+            var questionElement = document.getElementById("question" + questionIndex);
+            if (questionElement) {
+                questionElement.style.display = "block";
+                startTimer();
+            } else {
+                // No more questions, automatically submit the form
+                submitForm();
+            }
+        }
+
+
+        function nextQuestion() {
+            var currentQuestionElement = document.getElementById("question" + currentQuestion);
+            if (currentQuestion < length - 1) {
+                currentQuestionElement.style.display = "none";
+                clearInterval(timer); // Clear the previous timer
+                currentQuestion++;
+
+                if (currentQuestion < length) {
+                    showQuestion(currentQuestion);
+                    updateButtonText();
+                } else {
+                    if (!formSubmitted) { // Check if form is not already submitted
+                        submitForm(); // Submit the form automatically
+                        formSubmitted = true; // Set the flag to indicate form submission
+                    }
+                }
+            } else {
+                if (!formSubmitted) { // Check if form is not already submitted
+                    submitForm(); // Submit the form automatically
+                    formSubmitted = true; // Set the flag to indicate form submission
+                }
+            }
+        }
+
+
+
+        function startTimer() {
+            var seconds = 30;
+            timer = setInterval(function () {
+                document.getElementById("timer" + currentQuestion).innerText = "Time remaining: " + seconds + " seconds";
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(timer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function updateButtonText() {
+            var buttonText = (currentQuestion === (length - 1)) ? "Submit" : "Next";
+            document.getElementById("nextButton").innerText = buttonText;
+        }
+
+
+        function submitForm() {
+            document.getElementById("submitButton").click(); // Trigger the submit button click
+        }
+
+
+        window.onload = function () {
+            showQuestion(currentQuestion);
+            updateButtonText();
+
+        };
+    </script>
+
+
+</body>
+
+</html>

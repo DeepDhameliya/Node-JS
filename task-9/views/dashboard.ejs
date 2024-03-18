@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .user-info,
+        .action-buttons {
+            margin-bottom: 20px;
+        }
+
+        .action-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        .change-password {
+            background-color: #28a745;
+        }
+
+        .start-survey {
+            background-color: #007bff;
+            margin: 0 auto;
+            /* Center the button */
+            display: block;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+        .action-button:hover,
+        th:hover,
+        tr:hover td {
+            background-color: #343a40;
+        }
+
+        .action-button:active,
+        th:active,
+        tr:active td {
+            background-color: #1d2124;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .dashboard-container {
+            animation: slideIn 0.5s ease;
+        }
+
+        .button-style {
+            display: inline-block;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            background-color: #007bff;
+            text-decoration: none;
+            /* Remove underline */
+            margin-top: 20px;
+            /* Add margin for spacing */
+            transition: background-color 0.3s ease;
+            display: block;
+            width: fit-content;
+            /* Adjust width based on your design */
+            margin: 0 auto;
+            /* Center the button */
+        }
+
+        .button-style:hover {
+            background-color: #0056b3;
+            /* Adjust hover color if needed */
+        }
+    </style>
+</head>
+
+<body>
+    <% if (locals.alert) { %>
+        <script>
+            alert('<%= alert %>');
+        </script>
+        <% } %>
+            <div class="dashboard-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>First Name</td>
+                            <td>
+                                <%= user.fname %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Middle Name</td>
+                            <td>
+                                <%=user.mname%>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Last Name</td>
+                            <td>
+                                <%= user.lname %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mobile Number</td>
+                            <td>
+                                <%= user.mobilenumber %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td>
+                                <%= user.email %>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="action-buttons">
+                    <form action="/editprofile" method="get">
+                        <input type="hidden" name="userid" value="<%= user.userid %>">
+                        <button class="action-button change-password">Edit Profile</button>
+                    </form>
+
+                    <form action="/" method="get">
+                        <button class="action-button logout">Logout</button>
+                    </form>
+
+                </div>
+            </div>
+            <div>
+                <a href="/survey?page=1&userid=<%= user.userid %>" class="button-style">Start Survey</a>
+            </div>
+</body>
+
+</html>

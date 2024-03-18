@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Code Formatting</title>
+    
+    <!-- Include Highlight.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    
+    <!-- Import syntax highlighted CSS styling for all supported languages -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+
+    <!-- Import Atom One Light editor theme -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/atom-one-light.min.css">
+</head>
+<body>
+
+<h1>Custom Code Formatting</h1>
+
+<!-- Example content with custom tags -->
+<p>This is an inline code example: <code class="inline-code">shell command --options-maybe</code></p>
+
+<p>This is a code block example:</p>
+<pre><code class="javascript">
+function logMessage(msg) {
+    var preText = "New Message: ";
+    console.log(preText + msg);
+}
+
+logMessage("Multi-line code blocks are important.");
+</code></pre>
+
+<!-- Initialize Highlight.js and format code blocks -->
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        /* Run Highlight.js on every code block */
+        document.querySelectorAll('pre code').forEach((codeBlock) => {
+            hljs.highlightBlock(codeBlock);
+        });
+    });
+</script>
+
+</body>
+</html>

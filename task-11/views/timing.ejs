@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punch-In Punch-Out</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            margin-bottom: 20px;
+            margin-right: 10px;
+            /* Adjust this value for horizontal space */
+            margin-left: 10px;
+            /* Adjust this value for horizontal space */
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #777;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #3e8e41;
+        }
+
+        button#clockOutBtn,
+        button#breakOutBtn {
+            background-color: #d9534f;
+        }
+
+        button#clockOutBtn:hover,
+        button#breakOutBtn:hover {
+            background-color: #c9302c;
+        }
+
+        button#clockOutBtn:active,
+        button#breakOutBtn:active {
+            background-color: #ac2925;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        p.fadeInOut {
+            animation: fadeInOut 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <h2>Current Time</h2>
+            <p id="currentTime">00:00:00</p>
+        </div>
+        <button id="clockInBtn" onclick="clockIn()">Clock In</button>
+        <button id="clockOutBtn" style="display:none;" onclick="clockOut()">Clock Out</button>
+    </div>
+
+    <div class="container">
+        <div>
+            <h2>Break Time</h2>
+            <p id="breakTime">00:00:00</p>
+        </div>
+        <button id="breakBtn" style="display:none;" onclick="takeBreak()" disabled>Take Break</button>
+        <button id="breakOutBtn" style="display:none;" onclick="endBreak()">End Break</button>
+    </div>
+
+    <script>
+        let isClockIn = false;
+        let isOnBreak = false;
+        let clockInTime = 0;
+        let breakTime = 0;
+        let breakDuration = 0;
+        let intervalId; // Variable to store the interval ID
+
+        let userid = <%=userid%>;
+
+        // Load saved data from sessionStorage on page load
+        window.addEventListener('load', () => {
+            const savedData = JSON.parse(sessionStorage.getItem('punchInOutData')) || {};
+            isClockIn = savedData.isClockIn || false;
+            isOnBreak = savedData.isOnBreak || false;
+            clockInTime = savedData.clockInTime || 0;
+            breakTime = savedData.breakTime || 0;
+            breakDuration = savedData.breakDuration || 0;
+
+            // Update the displayed times with the stored values
+            if (isClockIn && !isOnBreak) {
+                const currentTime = new Date(breakTime - clockInTime - breakDuration);
+                const updatedbreakTime = new Date(breakDuration)
+                document.getElementById('breakTime').innerText = formatTime(updatedbreakTime);
+            }
+
+            if (isClockIn && isOnBreak) {
+                const currentTime = new Date(breakTime - clockInTime - breakDuration);
+
+                document.getElementById('currentTime').innerText = formatTime(currentTime);
+            }
+            updateButtons();
+            updateTimers();
+        });
+
+        // Save data to sessionStorage when the page is about to be unloaded (refreshed or closed)
+        window.addEventListener('beforeunload', () => {
+            const dataToSave = {
+                isClockIn,
+                isOnBreak,
+                clockInTime,
+                breakTime,
+                breakDuration
+            };
+            sessionStorage.setItem('punchInOutData', JSON.stringify(dataToSave));
+        });
+
+        function clockIn() {
+            if (!isClockIn) {
+                isClockIn = true;
+                clockInTime = Date.now();
+                breakDuration = 0;
+                clearInterval(intervalId);
+                updateButtons();
+                updateTimers();
+            }
+        }
+
+        function clockOut() {
+            if (isClockIn) {
+                if (isOnBreak) {
+                    alert("Please end your break before clocking out.");
+                } else {
+                    isClockIn = false;
+                    clearInterval(intervalId);
+                    const currentTime = new Date(Date.now() - clockInTime - breakDuration);
+                    const breakDurationDisplay = new Date(breakDuration);
+
+                    // Capture the current date
+                    const today = new Date();
+                    const currentDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+
+                    // Prepare data to send to the server
+                    const data = {
+                        userid: userid,
+                        currentTime: formatTime(currentTime),
+                        breakTime: formatTime(breakDurationDisplay),
+                        currentDate: currentDate, // Include the current date
+                    };
+
+                    // Send a POST request to your Node.js server
+                    fetch('/timing', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(responseData => {
+                            console.log(responseData);
+                            updateTimers();
+                            updateButtons();
+                        });
+
+                    window.location.href = '/?alert=your time has been recorded';
+                }
+            }
+        }
+
+        function takeBreak() {
+            if (isClockIn && !isOnBreak) {
+                isOnBreak = true;
+                breakTime = Date.now();
+                updateButtons();
+                updateTimers();
+            }
+        }
+
+        function endBreak() {
+            if (isOnBreak) {
+                isOnBreak = false;
+                const currentBreakTime = Date.now() - breakTime;
+                breakTime = Date.now() - breakDuration;
+                breakDuration += currentBreakTime;
+                updateButtons();
+                updateTimers();
+            }
+        }
+
+        function updateButtons() {
+            const clockInBtn = document.getElementById('clockInBtn');
+            const clockOutBtn = document.getElementById('clockOutBtn');
+            const breakBtn = document.getElementById('breakBtn');
+            const breakOutBtn = document.getElementById('breakOutBtn');
+
+            if (isClockIn) {
+                clockInBtn.style.display = 'none';
+                clockOutBtn.style.display = 'inline';
+                breakBtn.style.display = isOnBreak ? 'none' : 'inline';
+                breakBtn.disabled = isOnBreak;
+                breakOutBtn.style.display = isOnBreak ? 'inline' : 'none';
+            } else {
+                clockInBtn.style.display = 'inline';
+                clockOutBtn.style.display = 'none';
+                breakBtn.style.display = 'none';
+                breakOutBtn.style.display = 'none';
+            }
+        }
+
+        function updateTimers() {
+            clearInterval(intervalId);
+            intervalId = setInterval(() => {
+                if (isClockIn && !isOnBreak) {
+                    const currentTime = new Date(Date.now() - clockInTime - breakDuration);
+                    document.getElementById('currentTime').innerText = formatTime(currentTime);
+                } else if (isOnBreak) {
+                    const currentBreakTime = Date.now() - breakTime;
+                    const breakDurationDisplay = new Date(breakDuration + currentBreakTime);
+                    document.getElementById('breakTime').innerText = formatTime(breakDurationDisplay);
+                }
+            }, 1000);
+        }
+
+        function formatTime(time) {
+            const hours = time.getUTCHours().toString().padStart(2, '0');
+            const minutes = time.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = time.getUTCSeconds().toString().padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+    </script>
+</body>
+
+</html>

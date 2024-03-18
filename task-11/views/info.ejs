@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        tbody tr:hover {
+            background-color: #ecf0f1;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+
+        .go-back-button {
+            background-color: #2ecc71;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .go-back-button:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    
+    <h2>User Information</h2>
+    <% if (user && user.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Current Time</th>
+                    <th>Break Time</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% user.forEach(user => { %>
+                    <tr>
+                        <td><%= user.email %></td>
+                        <td><%= user.first_name %></td>
+                        <td><%= user.last_name %></td>
+                        <td><%= user.currenttime %></td>
+                        <td><%= user.breaktime %></td>
+                        <td><%= user.to_char %></td>
+                    </tr>
+                <% }); %>
+                <input type="hidden" name="userid" value="<%= user.user_id %>">
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>User Data not found</p>
+    <% } %>
+
+    <p>
+        <a href="/userinfo">
+            <button class="go-back-button">Go Back</button>
+        </a>
+    </p>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            /* Center text */
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        img {
+            max-width: 50px;
+            max-height: 50px;
+        }
+
+        /* Update and Delete Button Styles */
+
+        form {
+            display: inline;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Add some margin between buttons */
+
+        button+button {
+            margin-left: 5px;
+        }
+
+        #logoutBtn {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #f44336;
+            /* Red color for logout */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            margin-top: 20px;
+        }
+
+        #logoutBtn:hover {
+            background-color: #d32f2f;
+            /* Darker red on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>User Dashboard</h1>
+    <form action="/addUser" method="get">
+        <button type="submit">add user</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
+                <th>DOB</th>
+                <th>Mobile Number</th>
+                <th>Email</th>
+                <th>Profile Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user=> { %>
+                <tr>
+                    <td>
+                        <%= user.firstname %>
+                    </td>
+                    <td>
+                        <%= user.middlename %>
+                    </td>
+                    <td>
+                        <%= user.lastname %>
+                    </td>
+                    <td>
+                        <%= user.to_char %>
+                    </td>
+                    <td>
+                        <%= user.mobilenumber %>
+                    </td>
+                    <td>
+                        <%= user.email %>
+                    </td>
+                    <td><img src="http://localhost:3000/images/<%= user.profileimage %>" alt="Profile Image">
+                    </td>
+                    <td>
+                        <!-- Update Button -->
+                        <form action="/update" method="post">
+                            <input type="hidden" name="userId" value="<%= user.userid %>">
+                            <button type="submit">Update</button>
+                        </form>
+                        <!-- Delete Button -->
+                        <form action="/delete" method="post">
+                            <input type="hidden" name="userId" value="<%= user.userid %>">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+        </tbody>
+    </table>
+    <form action="/logout" method="post">
+        <button id="logoutBtn" type="submit">Logout</button>
+    </form>
+</body>
+
+</html>
